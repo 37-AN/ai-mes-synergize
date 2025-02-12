@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { StatusCard } from "@/components/dashboard/StatusCard";
 import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Gauge, Activity, Brain } from "lucide-react";
 
-// Define types to match our components
 type MachineStatus = {
   title: string;
   status: "operational" | "warning" | "critical";
@@ -95,20 +95,44 @@ const Index = () => {
           <p className="text-muted-foreground">Real-time monitoring and AI-driven insights</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {mockData.kpis.map((kpi, index) => (
-            <KPICard key={index} {...kpi} />
-          ))}
-        </div>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+            <TabsTrigger value="overview" className="space-x-2">
+              <Gauge className="h-4 w-4" />
+              <span>Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="production" className="space-x-2">
+              <Activity className="h-4 w-4" />
+              <span>Production</span>
+            </TabsTrigger>
+            <TabsTrigger value="insights" className="space-x-2">
+              <Brain className="h-4 w-4" />
+              <span>AI Insights</span>
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-6">
-            {mockData.machineStatuses.map((status, index) => (
-              <StatusCard key={index} {...status} />
-            ))}
-          </div>
-          <AIInsightCard insights={mockData.aiInsights} />
-        </div>
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {mockData.kpis.map((kpi, index) => (
+                <KPICard key={index} {...kpi} />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="production" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              {mockData.machineStatuses.map((status, index) => (
+                <StatusCard key={index} {...status} />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="insights" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-1">
+              <AIInsightCard insights={mockData.aiInsights} />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
