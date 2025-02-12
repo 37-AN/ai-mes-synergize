@@ -4,6 +4,22 @@ import { KPICard } from "@/components/dashboard/KPICard";
 import { StatusCard } from "@/components/dashboard/StatusCard";
 import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
 
+// Define types to match our components
+type MachineStatus = {
+  title: string;
+  status: "operational" | "warning" | "critical";
+  metrics: {
+    label: string;
+    value: string;
+  }[];
+};
+
+type AIInsight = {
+  type: "optimization" | "prediction" | "alert";
+  message: string;
+  impact: string;
+};
+
 const Index = () => {
   const [mockData] = useState({
     kpis: [
@@ -35,7 +51,7 @@ const Index = () => {
     machineStatuses: [
       {
         title: "Production Line A",
-        status: "operational",
+        status: "operational" as const,
         metrics: [
           { label: "Output Rate", value: "150 units/hr" },
           { label: "Temperature", value: "23.5°C" },
@@ -44,31 +60,31 @@ const Index = () => {
       },
       {
         title: "Production Line B",
-        status: "warning",
+        status: "warning" as const,
         metrics: [
           { label: "Output Rate", value: "142 units/hr" },
           { label: "Temperature", value: "24.8°C" },
           { label: "Pressure", value: "2.3 bar" },
         ],
       },
-    ],
+    ] as MachineStatus[],
     aiInsights: [
       {
-        type: "optimization",
+        type: "optimization" as const,
         message: "Optimal production parameters calculated for Line A based on current conditions.",
         impact: "Estimated 3% efficiency increase",
       },
       {
-        type: "prediction",
+        type: "prediction" as const,
         message: "Maintenance required for Line B within 48 hours based on vibration patterns.",
         impact: "Prevent potential 4-hour downtime",
       },
       {
-        type: "alert",
+        type: "alert" as const,
         message: "Quality variance detected in recent batches. Adjusting parameters automatically.",
         impact: "Maintaining 99.9% quality standard",
       },
-    ],
+    ] as AIInsight[],
   });
 
   return (
