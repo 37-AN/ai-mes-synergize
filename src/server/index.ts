@@ -1,3 +1,4 @@
+
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { dbClient } from './lib/DatabaseClient';
@@ -66,4 +67,4 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-startServer(); 
+startServer();

@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { StatusCard } from "@/components/dashboard/StatusCard";
 import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
+import { DashboardStatus } from "@/components/dashboard/DashboardStatus";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Gauge, Activity, Brain } from "lucide-react";
 
@@ -93,6 +95,7 @@ const Index = () => {
         <div className="flex flex-col space-y-4">
           <h1 className="text-2xl font-bold">Manufacturing Execution Dashboard</h1>
           <p className="text-muted-foreground">Real-time monitoring and AI-driven insights</p>
+          <DashboardStatus />
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
