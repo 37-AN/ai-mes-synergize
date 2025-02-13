@@ -18,7 +18,10 @@
     "strict": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "composite": false,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "noEmit": false
   },
   "include": ["./**/*.ts"],
