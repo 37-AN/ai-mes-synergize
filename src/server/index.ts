@@ -1,5 +1,5 @@
 
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import { dbClient } from './lib/DatabaseClient';
 import { router as insightsRouter } from './routes/insights';
@@ -9,13 +9,12 @@ import { simulationLogs } from './lib/logs';
 import './lib/simulator';
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8081;
 
 async function startServer() {
   try {
-    // Configure CORS with specific options
     app.use(cors({
-      origin: true, // Allow all origins
+      origin: 'http://localhost:8080',
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization']
     }));
@@ -23,11 +22,10 @@ async function startServer() {
     app.use(express.json());
 
     // Health check endpoint
-    app.get('/health', async (_req: Request, res: Response) => {
+    app.get('/health', async (_req, res) => {
       try {
         await dbClient.connect();
         res.json({ status: 'ok', dbConnected: dbClient.connected });
-        await dbClient.close();
       } catch (error) {
         res.status(503).json({ status: 'error', dbConnected: false });
       }
@@ -37,51 +35,28 @@ async function startServer() {
     app.use('/api/insights', insightsRouter);
 
     // Status endpoint
-    app.get('/api/status', (_req: Request, res: Response) => {
+    app.get('/api/status', (_req, res) => {
       res.json({
         dbConnection: dbClient.connected,
         simulationRunning: status.simulationRunning,
       });
     });
 
-    // Logs endpoint with error handling
-    app.get('/api/logs', (_req: Request, res: Response) => {
-      try {
-        res.json(simulationLogs);
-      } catch (error) {
-        console.error('Error fetching logs:', error);
-        res.status(500).json({ error: 'Failed to fetch logs' });
-      }
+    // Logs endpoint
+    app.get('/api/logs', (_req, res) => {
+      res.json(simulationLogs);
     });
 
     // Error handling
     app.use(handleServerError);
 
-    // Start server
     app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
+      console.log(`Server running on http://localhost:${port}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
   }
 }
-
-// Handle cleanup on shutdown
-process.on('SIGTERM', async () => {
-  try {
-    await dbClient.close();
-    console.log('Database connections closed');
-    process.exit(0);
-  } catch (error) {
-    console.error('Error during shutdown:', error);
-    process.exit(1);
-  }
-});
-
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
-});
 
 startServer();

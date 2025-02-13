@@ -18,9 +18,7 @@
     "strict": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "composite": true,
     "declaration": true,
-    "declarationMap": true,
     "sourceMap": true,
     "noEmit": false
   },
