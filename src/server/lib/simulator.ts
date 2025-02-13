@@ -1,13 +1,11 @@
 
 import { dbClient } from './DatabaseClient';
-import { status } from '../lib/status'; // Import the status object
+import { status } from './status';
+import { addLog } from './logs';
 
 async function createTables() {
   try {
-    // Ensure a connection is established.
     await dbClient.connect();
-
-    // Create the ProductionMetrics table if it doesn't already exist.
     await dbClient.query(`
       IF OBJECT_ID('dbo.ProductionMetrics', 'U') IS NULL
       BEGIN
@@ -19,9 +17,8 @@ async function createTables() {
         );
       END
     `);
-    console.log('ProductionMetrics table checked/created.');
+    addLog('ProductionMetrics table checked/created.');
 
-    // Create the MachineStatus table if it doesn't already exist.
     await dbClient.query(`
       IF OBJECT_ID('dbo.MachineStatus', 'U') IS NULL
       BEGIN
@@ -33,26 +30,24 @@ async function createTables() {
         );
       END
     `);
-    console.log('MachineStatus table checked/created.');
+    addLog('MachineStatus table checked/created.');
   } catch (error) {
-    console.error('Error creating tables:', error);
+    addLog(`Error creating tables: ${error.message}`);
   }
 }
 
 async function simulateProductionMetrics() {
   try {
     const productionCount = Math.floor(Math.random() * 1000);
-    const qualityRate = 80 + Math.random() * 20; // Quality between 80 and 100%
+    const qualityRate = 80 + Math.random() * 20;
 
-    const insertQuery = `
+    await dbClient.query(`
       INSERT INTO ProductionMetrics (ProductionCount, QualityRate)
       VALUES (${productionCount}, ${qualityRate});
-    `;
-
-    await dbClient.query(insertQuery);
-    console.log(`Inserted ProductionMetrics: Count=${productionCount}, QualityRate=${qualityRate.toFixed(2)}`);
+    `);
+    addLog(`New production metrics: Count=${productionCount}, Quality=${qualityRate.toFixed(2)}%`);
   } catch (error) {
-    console.error('Error inserting into ProductionMetrics:', error);
+    addLog(`Error inserting production metrics: ${error.message}`);
   }
 }
 
@@ -63,40 +58,35 @@ async function simulateMachineStatus() {
     const machineName = machineNames[Math.floor(Math.random() * machineNames.length)];
     const statusStr = statuses[Math.floor(Math.random() * statuses.length)];
 
-    const insertQuery = `
+    await dbClient.query(`
       INSERT INTO MachineStatus (MachineName, Status)
       VALUES ('${machineName}', '${statusStr}');
-    `;
-    await dbClient.query(insertQuery);
-    console.log(`Inserted MachineStatus: ${machineName} is ${statusStr}`);
+    `);
+    addLog(`Machine status update: ${machineName} is ${statusStr}`);
   } catch (error) {
-    console.error('Error inserting into MachineStatus:', error);
+    addLog(`Error inserting machine status: ${error.message}`);
   }
 }
 
 async function simulateData() {
-  console.log('Simulating data insertion...');
+  addLog('Starting new simulation cycle...');
   await simulateProductionMetrics();
   await simulateMachineStatus();
 }
 
 async function main() {
-  console.log('Starting simulator...');
-  // Ensure the necessary tables exist.
+  addLog('Initializing simulation system...');
   await createTables();
-
-  // Run an initial simulation.
   await simulateData();
-
-  // Mark simulation as running so that the API can see it.
+  
   status.simulationRunning = true;
-
-  // Then simulate data insertion every 10 seconds.
+  addLog('Simulation system initialized and running');
+  
   setInterval(simulateData, 10000);
 }
 
 main().then(() => {
-  console.log('Simulator started. Check your database and console logs for entries.');
+  addLog('Simulator started successfully');
 }).catch((error) => {
-  console.error('Simulator failed to start:', error);
+  addLog(`Simulator failed to start: ${error.message}`);
 });

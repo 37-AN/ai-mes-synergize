@@ -4,7 +4,8 @@ import cors from 'cors';
 import { dbClient } from './lib/DatabaseClient';
 import { router as insightsRouter } from './routes/insights';
 import { handleServerError } from './middleware/errorHandler';
-import { status } from '../server/lib/status';
+import { status } from './lib/status';
+import { simulationLogs } from './lib/logs';
 import './lib/simulator';
 
 const app = express();
@@ -29,12 +30,17 @@ async function startServer() {
     // API routes
     app.use('/api/insights', insightsRouter);
 
-    // API endpoint to return DB connection and simulation status
+    // Status endpoint
     app.get('/api/status', (_req, res) => {
       res.json({
         dbConnection: dbClient.connected,
         simulationRunning: status.simulationRunning,
       });
+    });
+
+    // Logs endpoint
+    app.get('/api/logs', (_req, res) => {
+      res.json(simulationLogs);
     });
 
     // Error handling
