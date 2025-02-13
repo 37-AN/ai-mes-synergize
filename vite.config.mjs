@@ -1,47 +1,78 @@
-
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
-import path from 'path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
+import polyfillNode from "rollup-plugin-polyfill-node";
 
 export default defineConfig({
   server: {
     host: "::",
-    port: 8080,
+    port: 8081,
     proxy: {
-      '/api': {
-        target: 'http://localhost:8081',
+      "/api": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
-      }
+      },
     },
-    cors: true
+    cors: true,
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    polyfillNode(),
+  ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src')
-    }
+      "@": path.resolve(__dirname, "src"),
+      "@mapbox/node-pre-gyp": path.resolve(__dirname, "src/stubs/empty.js"),
+      "@tensorflow/tfjs-node": path.resolve(__dirname, "src/stubs/tfjs-node.js"),
+      fs: path.resolve(__dirname, "src/stubs/empty.js"),
+      util: path.resolve(__dirname, "src/stubs/util.js"),
+      "node:events": "events",
+      "node:buffer": "buffer",
+      mssql: path.resolve(__dirname, "src/stubs/empty.js"),
+    },
   },
   define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-    'process.env.VITE_API_URL': JSON.stringify('http://localhost:8081'),
+    "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
+    "process.env.VITE_API_URL": JSON.stringify("http://localhost:8080"),
   },
   optimizeDeps: {
-    // Exclude node-only modules that might try to bundle non-JS assets
-    exclude: ["aws-sdk", "nock", "mock-aws-s3"]
+    exclude: [
+      "aws-sdk",
+      "nock",
+      "mock-aws-s3",
+      "@mapbox/node-pre-gyp",
+      "@tensorflow/tfjs-node",
+      "fs",
+      "util",
+      "mssql",
+      "buffer",
+      "events",
+    ],
   },
   build: {
     rollupOptions: {
-      // Mark these modules as external so they're not bundled
-      external: ["aws-sdk", "nock", "mock-aws-s3"]
-    }
+      external: [
+        "aws-sdk",
+        "nock",
+        "mock-aws-s3",
+        "@mapbox/node-pre-gyp",
+        "@tensorflow/tfjs-node",
+        "fs",
+        "util",
+        "mssql",
+        "buffer",
+        "events",
+      ],
+    },
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
   },
   esbuild: {
-    // Configure .html files to be treated as raw text
     loader: {
-      '.html': 'text'
-    }
+      ".html": "text",
+    },
   },
-  // Additionally, tell Vite to consider .html files as assets.
-  assetsInclude: ['**/*.html'],
-}); 
+  assetsInclude: ["**/*.html"],
+});

@@ -98,8 +98,8 @@ const server = http.createServer((req, res) => {
   }
 });
 
-// Update backend port to 8081 to avoid conflict with your frontend dev server (running on 8080)
-const port = process.env.PORT || 8081;
+// Set the backend port to 8080
+const port = process.env.PORT || 8080;
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
