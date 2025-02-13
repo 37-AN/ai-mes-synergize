@@ -1,22 +1,17 @@
-
 import { dbClient } from './DatabaseClient';
-<<<<<<< Updated upstream
-import { status } from './status';
-import { addLog } from './logs';
-
-async function createTables() {
-  try {
-    await dbClient.connect();
-=======
 import { status } from '../status';
 
+// Simple logging function. You can expand this if needed.
+function addLog(message: string): void {
+  console.log(message);
+}
+
 async function createTables() {
   try {
-    // Ensure we're connected
+    // Ensure we're connected.
     await dbClient.connect();
 
-    // Create the ProductionMetrics table if it doesn’t exist.
->>>>>>> Stashed changes
+    // Create ProductionMetrics table if it doesn't exist.
     await dbClient.query(`
       IF OBJECT_ID('dbo.ProductionMetrics', 'U') IS NULL
       BEGIN
@@ -30,10 +25,7 @@ async function createTables() {
     `);
     addLog('ProductionMetrics table checked/created.');
 
-<<<<<<< Updated upstream
-=======
-    // Create the MachineStatus table if it doesn’t exist.
->>>>>>> Stashed changes
+    // Create MachineStatus table if it doesn't exist.
     await dbClient.query(`
       IF OBJECT_ID('dbo.MachineStatus', 'U') IS NULL
       BEGIN
@@ -46,32 +38,31 @@ async function createTables() {
       END
     `);
     addLog('MachineStatus table checked/created.');
-  } catch (error) {
-    addLog(`Error creating tables: ${error.message}`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      addLog(`Error creating tables: ${error.message}`);
+    } else {
+      addLog(`Error creating tables: ${String(error)}`);
+    }
   }
 }
 
 async function simulateProductionMetrics() {
   try {
     const productionCount = Math.floor(Math.random() * 1000);
-    const qualityRate = 80 + Math.random() * 20;
-<<<<<<< Updated upstream
-
-    await dbClient.query(`
-      INSERT INTO ProductionMetrics (ProductionCount, QualityRate)
-      VALUES (${productionCount}, ${qualityRate});
-    `);
-    addLog(`New production metrics: Count=${productionCount}, Quality=${qualityRate.toFixed(2)}%`);
-=======
+    const qualityRate = 80 + Math.random() * 20; // Quality between 80 and 100%
     const insertQuery = `
       INSERT INTO ProductionMetrics (ProductionCount, QualityRate)
       VALUES (${productionCount}, ${qualityRate});
     `;
     await dbClient.query(insertQuery);
-    console.log(`Inserted ProductionMetrics: Count=${productionCount}, QualityRate=${qualityRate.toFixed(2)}`);
->>>>>>> Stashed changes
-  } catch (error) {
-    addLog(`Error inserting production metrics: ${error.message}`);
+    addLog(`Inserted ProductionMetrics: Count=${productionCount}, QualityRate=${qualityRate.toFixed(2)}`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      addLog(`Error inserting production metrics: ${error.message}`);
+    } else {
+      addLog(`Error inserting production metrics: ${String(error)}`);
+    }
   }
 }
 
@@ -81,52 +72,35 @@ async function simulateMachineStatus() {
     const statuses = ['Running', 'Stopped', 'Maintenance'];
     const machineName = machineNames[Math.floor(Math.random() * machineNames.length)];
     const statusStr = statuses[Math.floor(Math.random() * statuses.length)];
-<<<<<<< Updated upstream
-
-    await dbClient.query(`
-=======
     const insertQuery = `
->>>>>>> Stashed changes
       INSERT INTO MachineStatus (MachineName, Status)
       VALUES ('${machineName}', '${statusStr}');
-    `);
-    addLog(`Machine status update: ${machineName} is ${statusStr}`);
-  } catch (error) {
-    addLog(`Error inserting machine status: ${error.message}`);
+    `;
+    await dbClient.query(insertQuery);
+    addLog(`Inserted MachineStatus: ${machineName} is ${statusStr}`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      addLog(`Error inserting machine status: ${error.message}`);
+    } else {
+      addLog(`Error inserting machine status: ${String(error)}`);
+    }
   }
 }
 
 async function simulateData() {
-  addLog('Starting new simulation cycle...');
+  addLog('Simulating data insertion...');
   await simulateProductionMetrics();
   await simulateMachineStatus();
 }
 
 async function main() {
-<<<<<<< Updated upstream
-  addLog('Initializing simulation system...');
+  addLog('Starting simulator...');
   await createTables();
   await simulateData();
-  
-  status.simulationRunning = true;
-  addLog('Simulation system initialized and running');
-  
-  setInterval(simulateData, 10000);
-}
 
-main().then(() => {
-  addLog('Simulator started successfully');
-}).catch((error) => {
-  addLog(`Simulator failed to start: ${error.message}`);
-});
-=======
-  console.log('Starting simulator...');
-  await createTables();
-  await simulateData(); // Run once initially
-
-  // Set simulation status flag
+  // Set simulation status flag to true.
   status.simulationRunning = true;
-  console.log('Simulation status set to true.');
+  addLog('Simulation status set to true.');
 
   // Then simulate data insertion every 10 seconds.
   setInterval(async () => {
@@ -135,6 +109,13 @@ main().then(() => {
 }
 
 main()
-  .then(() => console.log('Simulator started. Check your console for logs and your database for changes.'))
-  .catch((error) => console.error('Simulator failed to start:', error));
->>>>>>> Stashed changes
+  .then(() => {
+    addLog('Simulator started. Check your console for logs and your database for changes.');
+  })
+  .catch((error: unknown) => {
+    if (error instanceof Error) {
+      addLog(`Simulator failed to start: ${error.message}`);
+    } else {
+      addLog(`Simulator failed to start: ${String(error)}`);
+    }
+  });
