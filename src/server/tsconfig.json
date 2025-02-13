@@ -20,8 +20,12 @@
     "skipLibCheck": true,
     "declaration": true,
     "sourceMap": true,
-    "noEmit": false
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noEmit": false,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["./**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "references": []
 }
