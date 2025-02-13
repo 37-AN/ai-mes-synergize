@@ -17,7 +17,9 @@
     "isolatedModules": true,
     "strict": true,
     "noImplicitAny": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "composite": false,
+    "noEmit": false
   },
   "include": ["./**/*.ts"],
   "exclude": ["node_modules"]
