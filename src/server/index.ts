@@ -13,7 +13,13 @@ const port = process.env.PORT || 8080;
 
 async function startServer() {
   try {
-    app.use(cors());
+    // Configure CORS with specific options
+    app.use(cors({
+      origin: true, // Allow all origins
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization']
+    }));
+    
     app.use(express.json());
 
     // Health check endpoint
@@ -31,16 +37,21 @@ async function startServer() {
     app.use('/api/insights', insightsRouter);
 
     // Status endpoint
-    app.get('/api/status', (_req, res) => {
+    app.get('/api/status', (_req: Request, res: Response) => {
       res.json({
         dbConnection: dbClient.connected,
         simulationRunning: status.simulationRunning,
       });
     });
 
-    // Logs endpoint
-    app.get('/api/logs', (_req, res) => {
-      res.json(simulationLogs);
+    // Logs endpoint with error handling
+    app.get('/api/logs', (_req: Request, res: Response) => {
+      try {
+        res.json(simulationLogs);
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ error: 'Failed to fetch logs' });
+      }
     });
 
     // Error handling
