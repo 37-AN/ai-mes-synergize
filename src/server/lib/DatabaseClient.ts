@@ -3,47 +3,37 @@ import type { config as SqlConfig } from 'mssql';
 import { sqlConfig } from '../../utils/dbConfig';
 
 export class DatabaseClient {
-  private static _instance: DatabaseClient;
   private _pool: sql.ConnectionPool | null = null;
   private _config: SqlConfig;
 
-  private constructor(config: SqlConfig) {
+  constructor(config: SqlConfig) {
     this._config = config;
   }
 
-  static getInstance(config: SqlConfig): DatabaseClient {
-    if (!DatabaseClient._instance) {
-      DatabaseClient._instance = new DatabaseClient(config);
-    }
-    return DatabaseClient._instance;
-  }
-
   async connect(): Promise<sql.ConnectionPool> {
-    try {
-      if (!this._pool) {
+    if (!this._pool) {
+      try {
         this._pool = await new sql.ConnectionPool(this._config).connect();
-        console.log('Connected to database');
+        console.log('Database connected.');
+      } catch (error) {
+        console.error('Error connecting to database:', error);
+        throw error;
       }
-      return this._pool;
-    } catch (error) {
-      console.error('Connection failed:', error);
-      throw error;
     }
+    return this._pool;
   }
 
   async query<T>(queryString: string, params: Record<string, any> = {}): Promise<T[]> {
     try {
       const pool = await this.connect();
       const request = pool.request();
-      
       Object.entries(params).forEach(([key, value]) => {
         request.input(key, value);
       });
-
       const result = await request.query(queryString);
       return result.recordset;
     } catch (error) {
-      console.error('Query failed:', error);
+      console.error('Query error:', error);
       throw error;
     }
   }
@@ -56,12 +46,10 @@ export class DatabaseClient {
   }
 
   get connected(): boolean {
-    return this._pool?.connected || false;
+    // The pool exists if the connection was successful.
+    return this._pool !== null;
   }
 }
 
-// Previously, you exported DatabaseService, which doesn't define "query"
-// export const dbClient = DatabaseService;
-
-// Fix: export an instance of DatabaseClient so that dbClient.query exists.
-export const dbClient = DatabaseClient.getInstance(sqlConfig);
+// Create and export a single instance of DatabaseClient
+export const dbClient = new DatabaseClient(sqlConfig);
